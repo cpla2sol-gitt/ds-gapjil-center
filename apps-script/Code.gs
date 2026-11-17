@@ -4,7 +4,7 @@
  */
 
 // 문의를 받을 메일 주소 (여러 개면 쉼표로 구분, Outlook 주소도 가능)
-const TO = "여기에_받을_메일주소";
+const TO = "cpla.2sol@gmail.com";
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
@@ -40,4 +40,9 @@ function doPost(e) {
 function ok_() {
   return ContentService.createTextOutput(JSON.stringify({ ok: true }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// 처음 한 번 실행해서 메일 보내기 권한을 승인하고, 테스트 메일이 오는지 확인합니다.
+function testSend() {
+  MailApp.sendEmail(TO, "[테스트] 직장갑질센터 홈페이지 문의 연결", "이 메일이 보이면 홈페이지 도입 문의가 이 메일함으로 정상적으로 들어옵니다.");
 }

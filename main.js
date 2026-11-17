@@ -9,7 +9,7 @@ const CONTACT = {
 
 /* 도입 문의 양식을 받을 Google Apps Script 웹앱 주소
    (apps-script/README.md 순서대로 배포한 뒤 나오는 https://script.google.com/macros/s/.../exec 주소) */
-const FORM_ENDPOINT = "";
+const FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycby3lYWg8yflns_Eh5m3sNg3CnpMlhK_BI4NYDfgAJc0iKmOvm6sBGf_WV-jgJJlqmBJpg/exec";
 
 /* ── 연락처 채우기 ── */
 document.querySelectorAll("[data-contact]").forEach(el => {
