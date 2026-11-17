@@ -399,9 +399,10 @@ textarea{min-height:120px;resize:vertical}
 html:has(.subnav){scroll-padding-top:130px}
 
 /* 센터 소개 */
-.about-why{display:grid;grid-template-columns:1fr 1.2fr;gap:56px;align-items:start}
-.about-why .sec-head{margin-bottom:0}
-.about-text{display:flex;flex-direction:column;gap:18px;color:var(--ink-2);font-size:17px;line-height:1.9;text-wrap:pretty;padding-top:36px}
+.about-why{display:block}
+.about-why .sec-head{margin-bottom:28px}
+.about-text{display:flex;flex-direction:column;gap:18px;color:var(--ink-2);font-size:17px;line-height:1.9;text-wrap:pretty;max-width:900px}
+.about-text strong{color:var(--navy);font-weight:700}
 .principles{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .principle{background:#fff;border:1px solid var(--line);border-radius:10px;padding:26px 24px}
 .principle .ico{width:26px;height:26px;color:var(--blue);margin-bottom:16px}
@@ -414,4 +415,4 @@ html:has(.subnav){scroll-padding-top:130px}
 .org p{color:var(--ink-2)}
 .org .link-more{margin-top:6px}
 @media (max-width:1100px){ .principles{grid-template-columns:1fr 1fr} .nav a{padding:8px 9px;font-size:14.5px} }
-@media (max-width:860px){ .about-why,.org-grid,.principles{grid-template-columns:1fr} .about-why{gap:0} .about-text{padding-top:24px} }
+@media (max-width:860px){ .about-why,.org-grid,.principles{grid-template-columns:1fr} }
