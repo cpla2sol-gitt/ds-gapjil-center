@@ -4,7 +4,7 @@
  */
 
 // 문의를 받을 메일 주소 (여러 개면 쉼표로 구분, Outlook 주소도 가능)
-const TO = "cpla.2sol@gmail.com";
+const TO = "cpla.2sol@gmail.com, ar20528@gmail.com";
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
