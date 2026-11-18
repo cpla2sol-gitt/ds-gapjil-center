@@ -484,3 +484,5 @@ html:has(.subnav){scroll-padding-top:130px}
 .receipt span{display:block;font-size:13px;letter-spacing:.1em;color:var(--blue-lt);font-weight:700}
 .receipt strong{display:block;font-size:30px;font-weight:800;letter-spacing:.04em;margin:4px 0 8px;font-variant-numeric:tabular-nums}
 .receipt p{font-size:14px;color:rgba(255,255,255,.75);text-wrap:pretty}
+.mode{display:flex;flex-direction:column}
+.mode-note{margin:auto 28px 0;padding:14px 0 22px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-3)}
