@@ -488,3 +488,18 @@ html:has(.subnav){scroll-padding-top:130px}
 .receipt p{font-size:14px;color:rgba(255,255,255,.75);text-wrap:pretty}
 .mode{display:flex;flex-direction:column}
 .mode-note{margin:auto 28px 0;padding:14px 0 22px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-3)}
+
+/* 첫 화면 대상별 버튼 */
+.aud-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px}
+.aud{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;padding:14px 18px;border-radius:var(--r);border:1px solid rgba(255,255,255,.35);text-decoration:none;color:#fff;transition:background .2s,border-color .2s}
+.aud small{grid-column:1;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.7)}
+.aud b{grid-column:1;font-size:16.5px;letter-spacing:-.02em}
+.aud .ico{grid-column:2;grid-row:1/3;transition:transform .2s}
+.aud:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.aud:hover .ico{transform:translateX(4px)}
+.aud-main{background:var(--blue);border-color:var(--blue)}
+.aud-main small{color:rgba(255,255,255,.85)}
+.aud-main:hover{background:#2049A8;border-color:#2049A8}
+.band-alt{margin-top:14px!important;font-size:14px}
+.band-alt a{color:#fff;font-weight:600;text-underline-offset:3px}
+@media (max-width:560px){ .aud-btns{grid-template-columns:1fr} }
