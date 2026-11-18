@@ -11,6 +11,13 @@ const CONTACT = {
    (apps-script/README.md 순서대로 배포한 뒤 나오는 https://script.google.com/macros/s/.../exec 주소) */
 const FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycby3lYWg8yflns_Eh5m3sNg3CnpMlhK_BI4NYDfgAJc0iKmOvm6sBGf_WV-jgJJlqmBJpg/exec";
 
+/* 고객사 목록: 코드 = 회사명 초성의 영문 첫 글자 + 등록 순번 (예: 한빛정밀 → ㅎ → H01)
+   한 번 정한 코드는 바꾸지 마세요. 새 회사는 맨 아래에 추가합니다.
+   직원 안내용 전용 링크: …/employee.html?c=H01 */
+const COMPANIES = {
+  H01: "한빛정밀",
+};
+
 /* ── 연락처 채우기 ── */
 document.querySelectorAll("[data-contact]").forEach(el => {
   const v = CONTACT[el.dataset.contact];
@@ -105,6 +112,25 @@ if (form) {
   });
 }
 
+/* ── 회사 코드: 전용 링크(?c=H01)가 우선, 없으면 입력한 회사명을 목록과 맞춰 봄, 그래도 없으면 Z00 ── */
+const normCo = v => String(v || "").replace(/\(주\)|㈜|주식회사|\(유\)|유한회사|\s|[.,·()\-]/g, "").toLowerCase();
+const linkCode = (() => {
+  let c = new URLSearchParams(location.search).get("c");
+  try {
+    if (c) sessionStorage.setItem("coCode", c.toUpperCase());
+    else c = sessionStorage.getItem("coCode");
+  } catch (e) {}
+  c = (c || "").toUpperCase();
+  return COMPANIES[c] ? c : "";
+})();
+function companyCode(name) {
+  if (linkCode) return linkCode;
+  const n = normCo(name);
+  if (!n) return "Z00";
+  const hit = Object.entries(COMPANIES).find(([, v]) => normCo(v) === n);
+  return hit ? hit[0] : "Z00";
+}
+
 /* ── 접수번호: 한국 시각 기준 YYMMDD-HHMM (예: 261118-0901) ── */
 function receiptNo(d = new Date()) {
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {
@@ -140,6 +166,13 @@ if (counsel) {
   };
   f.querySelectorAll("input[name=mode],input[name=via]").forEach(r => r.addEventListener("change", sync));
   sync();
+  const coNote = $("[data-co-note]");
+  const fillCompany = () => {
+    if (!linkCode) return;
+    f.company.value = COMPANIES[linkCode];
+    if (coNote) { coNote.textContent = `${COMPANIES[linkCode]} 임직원 전용 링크로 접속하셨어요.`; coNote.hidden = false; }
+  };
+  fillCompany();
   const counter = $("[data-count]");
   f.note.addEventListener("input", () => { counter.textContent = f.note.value.length; });
 
@@ -184,14 +217,15 @@ if (counsel) {
     }
 
     if (!FORM_ENDPOINT) { out.textContent = "온라인 접수를 준비 중입니다. 전화나 이메일로 연락해 주세요."; return; }
-    const no = receiptNo();
+    const code = companyCode(f.company.value);
+    const no = `${receiptNo()}-${code}`;
     btn.disabled = true; out.textContent = "보내는 중입니다…";
     try {
       await fetch(FORM_ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams({
-        type: "counsel", receipt: no, mode: f.mode.value, topic: f.topic.value, name: f.name.value.trim(),
+        type: "counsel", receipt: no, code, codeName: COMPANIES[code] || "", mode: f.mode.value, topic: f.topic.value, name: f.name.value.trim(),
         company: f.company.value.trim(), via, contact: c, time: f.time.value, note: f.note.value.trim()
       }) });
-      f.reset(); sync(); counter.textContent = "0";
+      f.reset(); sync(); fillCompany(); counter.textContent = "0";
       out.classList.add("form-ok");
       out.textContent = none ? "상담 신청이 접수되었습니다." : "상담 신청이 접수되었습니다. 영업일 기준 3일 이내에 말씀하신 방법으로 연락드리겠습니다.";
       receiptNum.textContent = no; receiptBox.hidden = false;

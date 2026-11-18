@@ -503,3 +503,4 @@ html:has(.subnav){scroll-padding-top:130px}
 .band-alt{margin-top:14px!important;font-size:14px}
 .band-alt a{color:#fff;font-weight:600;text-underline-offset:3px}
 @media (max-width:560px){ .aud-btns{grid-template-columns:1fr} }
+.hint-s{font-size:13px;color:var(--blue);margin:0}

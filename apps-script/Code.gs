@@ -45,6 +45,7 @@ function counsel_(field) {
   const d = {
     mode: field("mode", 10), topic: field("topic", 30), name: field("name", 50), company: field("company", 100),
     via: field("via", 10), contact: field("contact", 100), time: field("time", 30), note: field("note", 300),
+    code: field("code", 5), codeName: field("codeName", 100),
     receipt: receipt_(field("receipt", 20))
   };
   if (!d.company) return ok_();
@@ -55,7 +56,7 @@ function counsel_(field) {
     "상담 방식: " + (d.mode || "-"),
     "상담 분야: " + (d.topic || "-"),
     (d.mode === "실명" ? "이름: " : "별칭: ") + (d.name || "(남기지 않음)"),
-    "소속 회사: " + d.company,
+    "소속 회사: " + d.company + "  (회사 코드 " + (d.code || "Z00") + (d.codeName ? " = " + d.codeName : " = 목록에 없음, 확인 필요") + ")",
     "연락 방법: " + (d.via === "연락 안 받음" ? "연락처 없이 접수 — 신청인이 접수번호로 직접 연락할 예정" : (d.via || "-") + " / " + d.contact),
     "편한 시간: " + (d.time || "언제든"), "",
     "[미리 남긴 말]", d.note || "-", "",
@@ -68,9 +69,9 @@ function counsel_(field) {
   return ok_();
 }
 
-// 접수번호: 화면에서 만든 번호(YYMMDD-HHMM)를 쓰고, 없거나 형식이 다르면 서버 시각으로 만듭니다.
+// 접수번호: 화면에서 만든 번호(YYMMDD-HHMM 또는 YYMMDD-HHMM-H01)를 쓰고, 형식이 다르면 서버 시각으로 만듭니다.
 function receipt_(v) {
-  return /^\d{6}-\d{4}$/.test(v) ? v : Utilities.formatDate(new Date(), "Asia/Seoul", "yyMMdd-HHmm");
+  return /^\d{6}-\d{4}(-[A-Z]\d{2})?$/.test(v) ? v : Utilities.formatDate(new Date(), "Asia/Seoul", "yyMMdd-HHmm");
 }
 
 function ok_() {
