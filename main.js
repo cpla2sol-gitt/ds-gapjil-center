@@ -89,17 +89,115 @@ if (form) {
       return;
     }
 
+    const no = receiptNo(); data.receipt = no;
     btn.disabled = true; msg.textContent = "보내는 중입니다…";
     try {
       // Apps Script 웹앱은 다른 도메인이라 응답을 읽지 않는 방식(no-cors)으로 보냅니다.
       await fetch(FORM_ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams(data) });
       f.reset();
       msg.classList.add("form-ok");
-      msg.textContent = "문의가 접수되었습니다. 담당 노무사가 확인 후 연락드리겠습니다.";
+      msg.textContent = `문의가 접수되었습니다(접수번호 ${no}). 담당 노무사가 확인 후 연락드리겠습니다.`;
     } catch (err) {
       msg.textContent = "전송하지 못했습니다. 작성하신 내용은 그대로 있으니 잠시 후 다시 보내 주세요. 계속 안 되면 상담 창구의 전화·이메일로 연락해 주세요.";
     } finally {
       btn.disabled = false;
     }
+  });
+}
+
+/* ── 접수번호: 한국 시각 기준 YYMMDD-HHMM (예: 261118-0901) ── */
+function receiptNo(d = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Seoul", year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false
+  }).formatToParts(d).map(x => [x.type, x.value]));
+  return `${p.year}${p.month}${p.day}-${p.hour === "24" ? "00" : p.hour}${p.minute}`;
+}
+
+/* ── 임직원 온라인 상담 신청 ── */
+const counsel = document.getElementById("counsel");
+if (counsel) {
+  const f = counsel;
+  const $ = sel => f.querySelector(sel);
+  const nameLabel = $("[data-name-label]"), nameReq = $("[data-name-req]"), nameOpt = $("[data-name-opt]");
+  const contactLabel = $("[data-contact-label]"), contactWrap = $("[data-contact-wrap]");
+  const anonOnly = $("[data-anon-only]"), noContactTip = $("[data-nocontact]");
+  const receiptBox = $(".receipt"), receiptNum = $("[data-receipt]");
+
+  const sync = () => {
+    const named = f.mode.value === "실명";
+    nameLabel.textContent = named ? "이름" : "불러 드릴 별칭";
+    nameReq.hidden = !named; nameOpt.hidden = named;
+    f.name.placeholder = named ? "홍길동" : "예: 김OO, 하늘 (비워도 됩니다)";
+    f.name.autocomplete = named ? "name" : "off";
+    anonOnly.hidden = named;
+    if (named && f.via.value === "연락 안 받음") f.querySelector("input[name=via][value=전화]").checked = true;
+    const via = f.via.value, none = via === "연락 안 받음", mail = via === "이메일";
+    contactWrap.hidden = none; noContactTip.hidden = !none;
+    contactLabel.textContent = mail ? "이메일 주소" : "휴대폰 번호";
+    f.contact.type = mail ? "email" : "tel";
+    f.contact.inputMode = mail ? "email" : "tel";
+    f.contact.placeholder = mail ? "답변 받을 이메일 주소" : "010-0000-0000";
+  };
+  f.querySelectorAll("input[name=mode],input[name=via]").forEach(r => r.addEventListener("change", sync));
+  sync();
+  const counter = $("[data-count]");
+  f.note.addEventListener("input", () => { counter.textContent = f.note.value.length; });
+
+  const show = (id, box, input, msg) => {
+    document.getElementById(id).textContent = msg || "";
+    if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+    if (box) box.classList.toggle("invalid", !!msg);
+  };
+
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const out = $(".form-msg"), btn = $("button[type=submit]");
+    out.classList.remove("form-ok"); out.textContent = ""; receiptBox.hidden = true;
+    if (f.website.value) return;
+
+    const named = f.mode.value === "실명", via = f.via.value, none = via === "연락 안 받음";
+    const c = none ? "" : f.contact.value.trim();
+    const errs = {};
+    if (!f.topic.value) errs.topic = "어떤 일에 가까운지 골라 주세요. 잘 모르겠으면 '잘 모르겠어요'를 고르시면 됩니다.";
+    if (named && !f.name.value.trim()) errs.name = "실명 상담은 이름이 필요합니다. 이름 없이 하시려면 '익명 상담'을 골라 주세요.";
+    if (!f.company.value.trim()) errs.company = "소속 회사를 입력해 주세요. 센터와 계약된 회사인지 확인하는 데만 씁니다.";
+    if (!none) {
+      if (via === "이메일") {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) errs.contact = c ? "이메일 형식을 확인해 주세요. 예: name@example.com" : "연락받을 이메일 주소를 입력해 주세요.";
+      } else {
+        const d = c.replace(/\D/g, "");
+        if (!d) errs.contact = named ? "연락받을 휴대폰 번호를 입력해 주세요." : "연락받을 번호를 입력해 주세요. 연락처를 남기기 싫으면 '연락처 없이'를 고르세요.";
+        else if (d.length < 10 || d.length > 11) errs.contact = "번호를 다시 확인해 주세요. 예: 010-1234-5678";
+      }
+    }
+    if (!$("#c-agree").checked) errs.agree = "접수하려면 개인정보 수집·이용 동의가 필요합니다.";
+
+    show("e-topic", $(".seg-4"), null, errs.topic);
+    show("e-cname", f.name.closest(".fg"), f.name, errs.name);
+    show("e-cco", f.company.closest(".fg"), f.company, errs.company);
+    show("e-ccontact", contactWrap, f.contact, errs.contact);
+    show("e-cagree", document.getElementById("c-agree-box"), $("#c-agree"), errs.agree);
+    const first = Object.keys(errs)[0];
+    if (first) {
+      ({ topic: $("input[name=topic]"), name: f.name, company: f.company, contact: f.contact, agree: $("#c-agree") })[first].focus();
+      return;
+    }
+
+    if (!FORM_ENDPOINT) { out.textContent = "온라인 접수를 준비 중입니다. 전화나 이메일로 연락해 주세요."; return; }
+    const no = receiptNo();
+    btn.disabled = true; out.textContent = "보내는 중입니다…";
+    try {
+      await fetch(FORM_ENDPOINT, { method: "POST", mode: "no-cors", body: new URLSearchParams({
+        type: "counsel", receipt: no, mode: f.mode.value, topic: f.topic.value, name: f.name.value.trim(),
+        company: f.company.value.trim(), via, contact: c, time: f.time.value, note: f.note.value.trim()
+      }) });
+      f.reset(); sync(); counter.textContent = "0";
+      out.classList.add("form-ok");
+      out.textContent = none ? "상담 신청이 접수되었습니다." : "상담 신청이 접수되었습니다. 영업일 기준 3일 이내에 말씀하신 방법으로 연락드리겠습니다.";
+      receiptNum.textContent = no; receiptBox.hidden = false;
+      receiptBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      out.textContent = "전송하지 못했습니다. 작성하신 내용은 그대로 있으니 잠시 후 다시 보내 주세요. 계속 안 되면 전화·이메일로 연락해 주세요.";
+    } finally { btn.disabled = false; }
   });
 }

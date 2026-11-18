@@ -458,3 +458,29 @@ html:has(.subnav){scroll-padding-top:130px}
   .sample-head{padding-top:52px}
   .sample-total{text-align:left;padding-right:0}
 }
+
+/* 온라인 상담 신청 */
+.apply-grid{display:grid;grid-template-columns:360px 1fr;gap:56px;align-items:start}
+.ct-s{font-size:13px;color:var(--ink-3);margin-top:2px}
+.urgent{display:flex;gap:10px;margin-top:28px;padding:14px 16px;border-radius:8px;background:#FEF3F2;color:#7A271A;font-size:14.5px}
+.urgent .ico{color:#B42318;margin-top:3px}
+.fs{border:0;padding:0;margin:0 0 20px}
+.fs legend{font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:8px;padding:0}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:46px;padding:0 10px;border:1px solid #D5DAE1;border-radius:6px;background:#fff;font-size:15px;font-weight:600;color:var(--ink-2);text-align:center;transition:border-color .15s,background .15s,color .15s}
+.seg input:checked+span{border-color:var(--blue);background:var(--blue-pale);color:var(--navy);box-shadow:inset 0 0 0 1px var(--blue)}
+.seg input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.seg.invalid span{border-color:#B42318}
+.fs .err{margin-top:6px}
+.opt{font-weight:400;color:var(--ink-3)}
+.hint{font-size:12.5px;color:var(--ink-3);text-align:right}
+#counsel .fgrid{margin-bottom:20px}
+@media (max-width:860px){ .apply-grid{grid-template-columns:1fr;gap:32px} .seg-4{grid-template-columns:1fr 1fr} }
+[hidden]{display:none!important}
+.hint-l{font-size:14px;color:var(--ink-2);background:#fff;border:1px dashed #C9CFD8;border-radius:6px;padding:10px 12px;margin-top:10px}
+.receipt{margin-top:16px;background:var(--navy);color:#fff;border-radius:10px;padding:20px 22px;text-align:center}
+.receipt span{display:block;font-size:13px;letter-spacing:.1em;color:var(--blue-lt);font-weight:700}
+.receipt strong{display:block;font-size:30px;font-weight:800;letter-spacing:.04em;margin:4px 0 8px;font-variant-numeric:tabular-nums}
+.receipt p{font-size:14px;color:rgba(255,255,255,.75);text-wrap:pretty}
