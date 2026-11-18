@@ -1,3 +1,4 @@
+document.documentElement.classList.add("js");
 /* ─────────────────────────────────────────────
    설정: 여기 값만 채우면 사이트 전체에 반영됩니다
    ───────────────────────────────────────────── */
@@ -54,6 +55,41 @@ if (reveals.length) {
     reveals.forEach(el => ro.observe(el));
   } else reveals.forEach(el => el.classList.add("in"));
 }
+
+/* ── 스크롤 등장: 섹션 제목, 카드 묶음(순서대로), 단계·절차 ── */
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const groups = [".scope-grid", ".promise-grid", ".mode-grid", ".new-grid", ".roles", ".principles", ".org-grid", ".choice-grid", ".mini-scope", ".door-grid", ".stat-grid", ".rep-list", ".faq"];
+document.querySelectorAll(".sec-head, .part-title, .cta-band, .cross, .callout").forEach(el => el.classList.add("rv"));
+groups.forEach(sel => document.querySelectorAll(sel).forEach(g => [...g.children].forEach((c, i) => { c.classList.add("rv"); c.style.setProperty("--i", i); })));
+document.querySelectorAll(".steps, .flow").forEach(g => [...g.children].forEach((c, i) => c.style.setProperty("--i", i)));
+const targets = [...document.querySelectorAll(".rv, .steps, .flow")];
+if (reduce || !("IntersectionObserver" in window)) targets.forEach(el => el.classList.add("in"));
+else {
+  const io2 = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { const t = e.target; t.classList.add("in"); io2.unobserve(t); if (t.classList.contains("rv")) setTimeout(() => t.style.setProperty("--i", 0), 1500); }
+  }), { threshold: .15, rootMargin: "0px 0px -8% 0px" });
+  targets.forEach(el => io2.observe(el));
+}
+
+/* ── 숫자 세기: 통계 숫자가 화면에 들어오면 0부터 올라감 ── */
+document.querySelectorAll(".stat-n").forEach(el => {
+  const node = el.firstChild; if (!node || node.nodeType !== 3) return;
+  const raw = node.textContent.trim(), target = parseFloat(raw.replace(/,/g, ""));
+  if (isNaN(target) || reduce || !("IntersectionObserver" in window)) return;
+  const dec = (raw.split(".")[1] || "").length, fmt = v => v.toLocaleString("ko-KR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  node.textContent = fmt(0);
+  const io3 = new IntersectionObserver(es => {
+    if (!es[0].isIntersecting) return; io3.disconnect();
+    const t0 = performance.now(), dur = 1200;
+    const tick = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); node.textContent = fmt(target * e); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }, { threshold: .5 });
+  io3.observe(el);
+});
+
+/* ── 헤더: 스크롤하면 그림자 ── */
+const hdr = document.querySelector(".hdr");
+if (hdr) { const onS = () => hdr.classList.toggle("scrolled", scrollY > 8); addEventListener("scroll", onS, { passive: true }); onS(); }
 
 /* ── 모바일 메뉴 ── */
 const menuBtn = document.querySelector(".menu-btn"), nav = document.getElementById("nav");
