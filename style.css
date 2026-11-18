@@ -504,3 +504,48 @@ html:has(.subnav){scroll-padding-top:130px}
 .band-alt a{color:#fff;font-weight:600;text-underline-offset:3px}
 @media (max-width:560px){ .aud-btns{grid-template-columns:1fr} }
 .hint-s{font-size:13px;color:var(--blue);margin:0}
+
+/* ===== 모션: 첫 화면 한 번 + 데이터 + 클릭 반응 ===== */
+:root{interpolate-size:allow-keywords}
+.hero::before,.hero::after{display:none}
+.hero-frame{position:absolute;right:-60px;top:-70px;width:min(600px,60vw);height:auto;pointer-events:none;z-index:0}
+.hero-frame rect{fill:none;stroke-width:1.2;stroke-dasharray:1 1;vector-effect:non-scaling-stroke}
+.hero-frame .f1{stroke:rgba(255,255,255,.14);animation:draw 1.1s cubic-bezier(.65,0,.35,1) .1s both}
+.hero-frame .f2{stroke:rgba(143,176,242,.28);animation:draw 1.1s cubic-bezier(.65,0,.35,1) .35s both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.hero h1 .ln>span{display:block;animation:rise .9s cubic-bezier(.16,1,.3,1) var(--d,0s) both}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+.hero-in{animation:fadein .8s cubic-bezier(.16,1,.3,1) var(--d,0s) both}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 데이터: 화면에 들어오면 한 번 채워짐 */
+[data-reveal] .bar i{transform-origin:bottom;transform:scaleY(0);transition:transform .9s cubic-bezier(.16,1,.3,1)}
+[data-reveal] .bar:nth-child(2) i{transition-delay:.08s}
+[data-reveal] .bar:nth-child(3) i{transition-delay:.16s}
+[data-reveal] .bar:nth-child(4) i{transition-delay:.24s}
+[data-reveal] .bar:nth-child(5) i{transition-delay:.32s}
+[data-reveal].in .bar i{transform:none}
+[data-reveal] .hb-track i{transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.16,1,.3,1)}
+[data-reveal] .hbars li:nth-child(2) .hb-track i{transition-delay:.1s}
+[data-reveal] .hbars li:nth-child(3) .hb-track i{transition-delay:.2s}
+[data-reveal] .hbars li:nth-child(4) .hb-track i{transition-delay:.3s}
+[data-reveal].in .hb-track i{transform:none}
+@property --p{syntax:"<number>";inherits:false;initial-value:0}
+[data-reveal] .donut{transition:--p 1.2s cubic-bezier(.16,1,.3,1) .3s}
+[data-reveal]:not(.in) .donut{--p:0 !important}
+
+/* 클릭에 반응: 질문 펼침, 접수번호 등장 */
+.faq details::details-content{block-size:0;overflow:hidden;transition:block-size .35s cubic-bezier(.16,1,.3,1),content-visibility .35s allow-discrete}
+.faq details[open]::details-content{block-size:auto}
+.receipt:not([hidden]){animation:pop .45s cubic-bezier(.16,1,.3,1)}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .hero-frame rect,.hero h1 .ln>span,.hero-in,.receipt{animation:none!important}
+  [data-reveal] .bar i,[data-reveal] .hb-track i{transform:none!important;transition:none!important}
+  [data-reveal] .donut{transition:none!important}
+  [data-reveal]:not(.in) .donut{--p:83!important}
+  .faq details::details-content{transition:none}
+}
+@media (max-width:860px){ .hero-frame{right:-160px;top:-120px;width:520px;opacity:.7} }

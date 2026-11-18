@@ -44,6 +44,17 @@ if (subLinks.length && "IntersectionObserver" in window) {
   map.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
 }
 
+/* ── 데이터 시각화: 화면에 들어오면 한 번만 채우기 ── */
+const reveals = document.querySelectorAll("[data-reveal]");
+if (reveals.length) {
+  if ("IntersectionObserver" in window) {
+    const ro = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); }
+    }), { threshold: .35 });
+    reveals.forEach(el => ro.observe(el));
+  } else reveals.forEach(el => el.classList.add("in"));
+}
+
 /* ── 모바일 메뉴 ── */
 const menuBtn = document.querySelector(".menu-btn"), nav = document.getElementById("nav");
 if (menuBtn && nav) {
